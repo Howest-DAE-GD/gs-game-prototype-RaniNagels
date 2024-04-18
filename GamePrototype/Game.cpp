@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Game.h"
+#include "utils.h"
+#include "iostream"
 
 Game::Game( const Window& window ) 
 	:BaseGame{ window }
@@ -14,15 +16,18 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
-	
+	m_Player = new Player(Point2f{ 120, GetViewPort().height / 2 }, GetViewPort());
 }
 
 void Game::Cleanup( )
 {
+	delete m_Player;
+	m_Player = nullptr;
 }
 
 void Game::Update( float elapsedSec )
 {
+	m_Player->Update(elapsedSec);
 	// Check keyboard state
 	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
 	//if ( pStates[SDL_SCANCODE_RIGHT] )
@@ -38,15 +43,18 @@ void Game::Update( float elapsedSec )
 void Game::Draw( ) const
 {
 	ClearBackground( );
+	m_Player->Draw();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
+	m_Player->ProcessKeyDownEvent(e);
 	//std::cout << "KEYDOWN event: " << e.keysym.sym << std::endl;
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 {
+	m_Player->ProcessKeyUpEvent(e);
 	//std::cout << "KEYUP event: " << e.keysym.sym << std::endl;
 	//switch ( e.keysym.sym )
 	//{
