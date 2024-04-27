@@ -69,5 +69,9 @@ struct Ellipsef
 	float radiusY;
 };
 
-
+enum class type
+{
+	enemie,
+	collectable
+};
 

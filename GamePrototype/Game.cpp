@@ -16,18 +16,89 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
-	m_Player = new Player(Point2f{ 120, GetViewPort().height / 2 }, GetViewPort());
+	PrintInstructions();
+	m_Player = new Player(Point2f{ 120, GetViewPort().height / 2 });
+	Actor::SetBoundaries(GetViewPort());
+	m_Enemies.reserve(AMOUNT_OF_ENEMIES);
+	m_Collectables.reserve(AMOUNT_OF_COLLECTABLES);
+	for (int i{}; i < AMOUNT_OF_ENEMIES; ++i)
+	{
+		float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+		int delay{ rand() % 35 };
+		m_Enemies.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, type::enemie});
+	}
+	for (int i{}; i < AMOUNT_OF_COLLECTABLES; ++i)
+	{
+		float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+		int delay{ rand() % 35 };
+		m_Collectables.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, type::collectable });
+	}
+	m_GameOver = false;
 }
 
 void Game::Cleanup( )
 {
+	m_Enemies.clear();
+	m_Collectables.clear();
+
 	delete m_Player;
 	m_Player = nullptr;
 }
 
+void Game::Reset()
+{
+	Cleanup();
+	Initialize();
+}
+
+void Game::PrintInstructions()
+{
+
+}
+
+void Game::ReuseGameAssets()
+{
+	for (int i{}; i < AMOUNT_OF_ENEMIES; ++i)
+	{
+		if (m_Enemies[i].GetIsKilled())
+		{
+			float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+			int delay{ rand() % 35 };
+			m_Enemies[i] = GameAssets{ Point2f{GetViewPort().width, y}, delay, type::enemie };
+			std::cout << "[ Enemy [" << i << "] RESET ]\n";
+		}
+	}
+
+	for (int i{}; i < AMOUNT_OF_COLLECTABLES; ++i)
+	{
+		if (m_Collectables[i].GetIsKilled())
+		{
+			float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+			int delay{ rand() % 35 };
+			m_Collectables[i] = GameAssets{ Point2f{GetViewPort().width, y}, delay, type::collectable };
+			std::cout << "[ Collectable [" << i << "] RESET ]\n";
+		}
+	}
+}
+
 void Game::Update( float elapsedSec )
 {
-	m_Player->Update(elapsedSec);
+	if (m_GameOver == false)
+	{
+		m_Player->Update(elapsedSec);
+		for (int i{}; i < AMOUNT_OF_ENEMIES; ++i)
+		{
+			m_Enemies[i].Update(elapsedSec);
+			m_Player->HitDetection(&m_Enemies[i], type::enemie);
+		}
+		for (int i{}; i < AMOUNT_OF_COLLECTABLES; ++i)
+		{
+			m_Collectables[i].Update(elapsedSec);
+			m_Player->HitDetection(&m_Collectables[i], type::collectable);
+		}
+		m_GameOver = m_Player->GameOver();
+		ReuseGameAssets();
+	}
 	// Check keyboard state
 	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
 	//if ( pStates[SDL_SCANCODE_RIGHT] )
@@ -42,8 +113,24 @@ void Game::Update( float elapsedSec )
 
 void Game::Draw( ) const
 {
-	ClearBackground( );
-	m_Player->Draw();
+	if (m_GameOver == false)
+	{
+		ClearBackground();
+		m_Player->Draw();
+
+		for (int i{}; i < AMOUNT_OF_ENEMIES; ++i)
+		{
+			m_Enemies[i].Draw();
+		}
+		for (int i{}; i < AMOUNT_OF_COLLECTABLES; ++i)
+		{
+			m_Collectables[i].Draw();
+		}
+	}
+	else
+	{
+		ClearBackground(Color4f{ 0.6f, 0.1f, 0.1f, 1.f });
+	}
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
@@ -56,19 +143,23 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 {
 	m_Player->ProcessKeyUpEvent(e);
 	//std::cout << "KEYUP event: " << e.keysym.sym << std::endl;
-	//switch ( e.keysym.sym )
-	//{
-	//case SDLK_LEFT:
-	//	//std::cout << "Left arrow key released\n";
-	//	break;
+	switch ( e.keysym.sym )
+	{
+	case SDLK_SPACE:
+		if (m_GameOver)
+		{
+			Reset();
+			std::cout << "RESET!\n";
+		}
+		break;
 	//case SDLK_RIGHT:
-	//	//std::cout << "`Right arrow key released\n";
-	//	break;
+		//std::cout << "`Right arrow key released\n";
+		//break;
 	//case SDLK_1:
 	//case SDLK_KP_1:
-	//	//std::cout << "Key 1 released\n";
-	//	break;
-	//}
+		//std::cout << "Key 1 released\n";
+		//break;
+	}
 }
 
 void Game::ProcessMouseMotionEvent( const SDL_MouseMotionEvent& e )
@@ -111,8 +202,8 @@ void Game::ProcessMouseUpEvent( const SDL_MouseButtonEvent& e )
 	//}
 }
 
-void Game::ClearBackground( ) const
+void Game::ClearBackground(const Color4f& background_color) const
 {
-	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
+	glClearColor( background_color.r, background_color.g, background_color.b, background_color.a );
 	glClear( GL_COLOR_BUFFER_BIT );
 }

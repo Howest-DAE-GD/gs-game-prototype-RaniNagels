@@ -1,10 +1,17 @@
 #include "pch.h"
 #include "Actor.h"
 
-Actor::Actor(const Point2f& pos, const Rectf& boundaries)
-	: m_Position{ pos }, m_Size{}, m_Speed{},
-	m_FillColor{}, m_EdgeColor{}, m_Boundaries{boundaries}
+Rectf Actor::m_Boundaries{};
+
+Actor::Actor(const Point2f& pos)
+	: m_Position{ pos }, m_Size{}, m_Speed{}, m_Health{},
+	m_FillColor{}, m_EdgeColor{}
 {
+}
+
+void Actor::SetBoundaries(const Rectf& boundaries)
+{
+	m_Boundaries = boundaries;
 }
 
 Color4f Actor::ConvertColor(int r, int g, int b)

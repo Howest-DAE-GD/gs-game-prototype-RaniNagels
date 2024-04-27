@@ -33,6 +33,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="GameAssets.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -45,6 +48,9 @@
       <Filter>Classes</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="GameAssets.h">
       <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>

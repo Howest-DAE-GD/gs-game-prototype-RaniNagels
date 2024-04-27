@@ -1,6 +1,8 @@
 #pragma once
 #include "BaseGame.h"
 #include "Player.h"
+#include "GameAssets.h"
+#include <vector>
 
 class Game : public BaseGame
 {
@@ -24,10 +26,18 @@ public:
 	void ProcessMouseUpEvent( const SDL_MouseButtonEvent& e ) override;
 
 private:
+	const int AMOUNT_OF_ENEMIES{ 10 };
+	std::vector<GameAssets> m_Enemies;
+	const int AMOUNT_OF_COLLECTABLES{ 10 };
+	std::vector<GameAssets> m_Collectables;
 	Player* m_Player;
+	bool m_GameOver;
 
 	// FUNCTIONS
 	void Initialize();
+	void PrintInstructions();
 	void Cleanup( );
-	void ClearBackground( ) const;
+	void ClearBackground(const Color4f& background_color = Color4f{0.f, 0.f, 0.3f, 1.f}) const;
+	void Reset();
+	void ReuseGameAssets();
 };
