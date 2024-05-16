@@ -16,9 +16,12 @@ public:
 
     void HitDetection(GameAssets* asset, type type);
     bool GameOver();
+    bool CheckSpeedZero();
 
 private:
     Rectf m_HitRect;
+    int m_BaseSize;
+    int m_BaseSpeed;
     void PrintHealth();
 };
 

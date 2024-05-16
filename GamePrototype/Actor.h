@@ -11,7 +11,7 @@ public:
 protected:
 	static Rectf m_Boundaries;
 
-	int m_Size;
+	float m_Size;
 	int m_Speed;
 	int m_Health;
 	Point2f m_Position;

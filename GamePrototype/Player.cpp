@@ -9,9 +9,11 @@ Player::Player(const Point2f& pos)
 {
 	m_FillColor = ConvertColor(20, 104, 152);
 	m_EdgeColor = ConvertColor(17, 87, 128);
-	m_Size = 60;
-	m_Speed = 250;
 	m_Health = 5;
+	m_BaseSize = 12;
+	m_BaseSpeed = 20;
+	m_Size = 40.f + m_BaseSize * m_Health;
+	m_Speed = 430 - m_BaseSpeed * m_Health;
 	m_HitRect = Rectf{ m_Position.x - m_Size / 2, m_Position.y - m_Size / 2 , float(m_Size), float(m_Size) };
 }
 
@@ -99,7 +101,6 @@ void Player::ProcessKeyUpEvent(const SDL_KeyboardEvent& e)
 
 void Player::HitDetection(GameAssets* asset, type type)
 {
-	int changeSize{ 10 };
 	if (asset->GetIsKilled() == false)
 	{
 		if (utils::IsOverlapping(m_HitRect, asset->GetHitCircle()))
@@ -108,13 +109,24 @@ void Player::HitDetection(GameAssets* asset, type type)
 			{
 			case type::enemie:
 				m_Health -= asset->GetDamage();
-				m_Size -= changeSize;
 				break;
 			case type::collectable:
 				m_Health += asset->GetDamage();
-				m_Size += changeSize;
+				break;
+			case type::switchable:
+				int random{ rand() % 2 };
+				if (random == 0)
+				{
+					m_Health += asset->GetDamage();
+				}
+				else
+				{
+					m_Health -= asset->GetDamage();
+				}
 				break;
 			}
+			m_Speed = 430 - m_BaseSpeed * m_Health;
+			m_Size = 40.f + m_BaseSize * m_Health;
 			PrintHealth();
 			asset->SetIsKilled(true);
 		}
@@ -127,11 +139,20 @@ bool Player::GameOver()
 	{
 		return false;
 	}
-	std::cout << "[ GAME OVER ]\n";
+	std::cout << "[ GAME OVER ] : Press Space to restart\n";
 	return true;
+}
+
+bool Player::CheckSpeedZero()
+{
+	if (m_Speed <= 0)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Player::PrintHealth()
 {
-	std::cout << "[HEALTH]: " << m_Health << std::endl;
+	std::cout << "[HEALTH]: " << m_Health << "\t [SPEED]: " << m_Speed << std::endl;
 }

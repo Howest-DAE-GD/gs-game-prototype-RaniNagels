@@ -72,6 +72,7 @@ struct Ellipsef
 enum class type
 {
 	enemie,
-	collectable
+	collectable,
+	switchable
 };
 

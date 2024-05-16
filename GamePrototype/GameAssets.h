@@ -13,7 +13,13 @@ public:
     Circlef GetHitCircle() const;
     int GetDamage() const;
     void SetIsKilled(bool killed);
-    bool GetIsKilled();
+    bool GetIsKilled() const;
+
+    void SetSpeed(int speed);
+    int GetSpeed() const;
+
+    void SetSwitchDirection(bool isSwitch);
+    bool GetSwitchDirection();
 
 private:
     type m_Type;
@@ -22,5 +28,6 @@ private:
     int m_HealthModifier;
     bool m_IsActive;
     bool m_IsKilled;
+    bool m_SwitchDirection;
 };
 

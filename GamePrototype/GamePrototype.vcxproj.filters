@@ -16,6 +16,9 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{ad5ce561-d74b-4de4-a23c-e890dbd64abc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestClasses">
+      <UniqueIdentifier>{c770037b-a144-4c7d-828c-0c68c6f307b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -36,6 +39,9 @@
     <ClCompile Include="GameAssets.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="Streams.cpp">
+      <Filter>TestClasses</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -52,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="GameAssets.h">
       <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Streams.h">
+      <Filter>TestClasses</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
