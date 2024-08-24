@@ -24,6 +24,10 @@ void Game::Initialize( )
 	InitializeForLoop(AMOUNT_OF_SWITCHABLES , m_Switchables , m_DirStateSwitchables , type::switchable );
 	m_GameOver = false;
 	m_GameMode = gameMode::playing;
+
+	m_pFont = TTF_OpenFont("DIN-Light.otf", 30);
+	m_pDoubleTexture = new Texture{ "x2", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	Actor::SetDoubleTexture(m_pDoubleTexture);
 }
 
 void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::vector<bool>& dir_states, type type)
@@ -69,6 +73,9 @@ void Game::Cleanup( )
 
 	delete m_Player;
 	m_Player = nullptr;
+
+	delete m_pDoubleTexture;
+	m_pDoubleTexture = nullptr;
 }
 
 void Game::Reset()
@@ -204,10 +211,21 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 	switch ( e.keysym.sym )
 	{
 	case SDLK_SPACE:
-		if (m_GameMode != gameMode::playing)
+		if (m_GameMode == gameMode::won || m_GameMode == gameMode::lost)
 		{
 			Reset();
 			std::cout << "RESET!\n";
+		}
+		else if (m_GameMode == gameMode::playing)
+		{
+			m_GameMode = gameMode::pause;
+			std::cout << "PAUSE!\n";
+			break;
+		}
+		else if (m_GameMode == gameMode::pause)
+		{
+			m_GameMode == m_GameMode;
+			std::cout << "PLAY!\n";
 		}
 		break;
 	//case SDLK_RIGHT:

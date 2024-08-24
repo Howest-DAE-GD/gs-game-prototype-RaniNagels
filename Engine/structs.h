@@ -27,6 +27,7 @@ struct Rectf
 {
 	Rectf( );
 	explicit Rectf( float left, float bottom, float width, float height );
+	explicit Rectf( const Point2f& pos, float width, float height );
 	
 	float left;
 	float bottom;
@@ -39,7 +40,7 @@ struct Rectf
 struct Color4f
 {
 	Color4f( );
-	explicit Color4f( float r, float g, float b, float a );
+	explicit Color4f( float r, float g, float b, float a = 1.f );
 	
 	float r;
 	float g;
@@ -76,3 +77,7 @@ enum class type
 	switchable
 };
 
+enum class powerUpType
+{
+	catchNet, SuperSpeed, DoubleReward, DoubleRandom, BiggerField
+};

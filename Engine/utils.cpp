@@ -12,6 +12,12 @@ void utils::SetColor( const Color4f& color )
 	glColor4f( color.r, color.g, color.b, color.a );
 }
 
+Color4f utils::ConvertColor(float r, float g, float b)
+{
+	float max{ 255.f };
+	return Color4f(r / max, g / max, b / max, 1.f);
+}
+
 void utils::DrawPoint( float x, float y, float pointSize )
 {
 	glPointSize( pointSize );

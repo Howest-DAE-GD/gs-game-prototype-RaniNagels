@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "GameAssets.h"
 #include <vector>
+#include "PowerUp.h"
 
 class Game : public BaseGame
 {
@@ -39,9 +40,17 @@ private:
 	bool m_GameOver;
 	enum class gameMode
 	{
-		playing, won, lost
+		playing, won, lost, pause
 	};
 	gameMode m_GameMode{};
+	enum class powerUpType
+	{
+		catchNet, superSpeed, DoubleReward, DoubleRandom, BiggerField
+	};
+	std::vector<PowerUp> m_PowerUps;
+
+	TTF_Font* m_pFont;
+	Texture* m_pDoubleTexture;
 
 	// FUNCTIONS
 	void Initialize();

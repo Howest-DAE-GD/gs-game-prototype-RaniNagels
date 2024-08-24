@@ -10,18 +10,18 @@ GameAssets::GameAssets(const Point2f& position, int delay, type type)
 	switch (m_Type)
 	{
 	case type::enemie:
-		m_FillColor = ConvertColor(152, 37, 15);
-		m_EdgeColor = ConvertColor(123, 30, 12);
+		m_FillColor = utils::ConvertColor(152, 37, 15);
+		m_EdgeColor = utils::ConvertColor(123, 30, 12);
 		m_HealthModifier = int(rand() % 3 + 1);
 		break;
 	case type::collectable:
-		m_FillColor = ConvertColor(20, 135, 45);
-		m_EdgeColor = ConvertColor(15, 94, 32);
+		m_FillColor = utils::ConvertColor(20, 135, 45);
+		m_EdgeColor = utils::ConvertColor(15, 94, 32);
 		m_HealthModifier = int(rand() % 2 + 1);
 		break;
 	case type::switchable:
-		m_FillColor = ConvertColor(183, 194, 25);
-		m_EdgeColor = ConvertColor(89, 94, 20);
+		m_FillColor = utils::ConvertColor(183, 194, 25);
+		m_EdgeColor = utils::ConvertColor(89, 94, 20);
 		m_HealthModifier = int(rand() % 3 + 2);
 		break;
 	}
@@ -40,6 +40,8 @@ void GameAssets::Draw() const
 		utils::SetColor(m_EdgeColor);
 		utils::DrawEllipse(m_Position, m_Size / 2.f, m_Size / 2.f, 4);
 	}
+
+	Actor::Draw();
 }
 
 void GameAssets::Update(float elapsedSec)

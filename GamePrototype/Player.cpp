@@ -7,8 +7,8 @@
 Player::Player(const Point2f& pos)
 	: Actor(pos)
 {
-	m_FillColor = ConvertColor(20, 104, 152);
-	m_EdgeColor = ConvertColor(17, 87, 128);
+	m_FillColor = utils::ConvertColor(20, 104, 152);
+	m_EdgeColor = utils::ConvertColor(17, 87, 128);
 	m_Health = 5;
 	m_BaseSize = 12;
 	m_BaseSpeed = 20;
@@ -29,6 +29,9 @@ void Player::Draw() const
 		utils::SetColor(m_EdgeColor);
 		utils::DrawRect(center, m_Size, m_Size, 5);
 	}
+
+	Actor::Draw();
+
 }
 
 void Player::Update(float elapsedSec)
@@ -36,28 +39,28 @@ void Player::Update(float elapsedSec)
 	if (m_Health > 0)
 	{
 		const Uint8* pStates = SDL_GetKeyboardState(nullptr);
-		if (pStates[SDL_SCANCODE_UP])
+		if (pStates[SDL_SCANCODE_UP] || pStates[SDL_SCANCODE_W])
 		{
 			if (m_Position.y + m_Size / 2 < m_Boundaries.height)
 			{
 				m_Position.y += m_Speed * elapsedSec;
 			}
 		}
-		if (pStates[SDL_SCANCODE_DOWN])
+		if (pStates[SDL_SCANCODE_DOWN] || pStates[SDL_SCANCODE_S])
 		{
 			if (m_Position.y - m_Size / 2 > m_Boundaries.bottom)
 			{
 				m_Position.y -= m_Speed * elapsedSec;
 			}
 		}
-		if (pStates[SDL_SCANCODE_LEFT])
+		if (pStates[SDL_SCANCODE_LEFT] || pStates[SDL_SCANCODE_A])
 		{
 			if (m_Position.x - m_Size / 2 > m_Boundaries.left)
 			{
 				m_Position.x -= m_Speed * elapsedSec;
 			}
 		}
-		if (pStates[SDL_SCANCODE_RIGHT])
+		if (pStates[SDL_SCANCODE_RIGHT] || pStates[SDL_SCANCODE_D])
 		{
 			if (m_Position.x + m_Size / 2 < m_Boundaries.width)
 			{

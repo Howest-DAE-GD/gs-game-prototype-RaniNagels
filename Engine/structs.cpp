@@ -40,6 +40,11 @@ Rectf::Rectf( float left, float bottom, float width, float height )
 {
 }
 
+Rectf::Rectf(const Point2f& pos, float width, float height)
+	: Rectf{pos.x, pos.y, width, height}
+{
+}
+
 //-----------------------------------------------------------------
 // Color4f Constructors
 //-----------------------------------------------------------------
