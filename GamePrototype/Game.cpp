@@ -170,7 +170,7 @@ void Game::Update( float elapsedSec )
 
 void Game::Draw() const
 {
-	if (m_GameMode == gameMode::playing)
+	if (m_GameMode == gameMode::playing || m_GameMode == gameMode::pause)
 	{
 		ClearBackground();
 		m_Player->Draw();
@@ -192,7 +192,7 @@ void Game::Draw() const
 	{
 		ClearBackground(Color4f{ 0.6f, 0.1f, 0.1f, 1.f });
 	}
-	else
+	else if (m_GameMode == gameMode::won)
 	{
 		ClearBackground(Color4f{ 0.1f, 0.6f, 0.1f, 1.f });
 	}
@@ -220,11 +220,10 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 		{
 			m_GameMode = gameMode::pause;
 			std::cout << "PAUSE!\n";
-			break;
 		}
 		else if (m_GameMode == gameMode::pause)
 		{
-			m_GameMode == m_GameMode;
+			m_GameMode == gameMode::playing;
 			std::cout << "PLAY!\n";
 		}
 		break;
