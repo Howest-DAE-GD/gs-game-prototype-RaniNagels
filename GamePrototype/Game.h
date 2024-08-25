@@ -3,7 +3,6 @@
 #include "Player.h"
 #include "GameAssets.h"
 #include <vector>
-#include "PowerUp.h"
 
 class Game : public BaseGame
 {
@@ -36,21 +35,23 @@ private:
 	const int AMOUNT_OF_SWITCHABLES{ 10 };
 	std::vector<GameAssets> m_Switchables;
 	std::vector<bool> m_DirStateSwitchables;
+	const int AMOUNT_OF_POWERUPS{ 5 };
+	std::vector<GameAssets> m_PowerUps;
+	std::vector<bool> m_DirStatePowerUps;
+
+	Rectf m_Boundaries;
+
 	Player* m_Player;
+
 	bool m_GameOver;
-	enum class gameMode
-	{
-		playing, won, lost, pause
-	};
 	gameMode m_GameMode{};
-	enum class powerUpType
-	{
-		catchNet, superSpeed, DoubleReward, DoubleRandom, BiggerField
-	};
-	std::vector<PowerUp> m_PowerUps;
+	
 
 	TTF_Font* m_pFont;
 	Texture* m_pDoubleTexture;
+	Texture* m_pSuperSpeedTexture;
+
+	Texture* m_pPauseTexture;
 
 	// FUNCTIONS
 	void Initialize();

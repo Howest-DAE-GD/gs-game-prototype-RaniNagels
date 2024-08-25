@@ -70,14 +70,20 @@ struct Ellipsef
 	float radiusY;
 };
 
+enum class gameMode
+{
+	playing, won, lost, pause
+};
+
 enum class type
 {
 	enemie,
 	collectable,
-	switchable
+	switchable,
+	powerUp
 };
 
 enum class powerUpType
 {
-	catchNet, SuperSpeed, DoubleReward, DoubleRandom, BiggerField
+	none, catchNet, SuperSpeed, DoubleReward, DoubleRandom, BiggerField
 };

@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Classes">
       <UniqueIdentifier>{ad5ce561-d74b-4de4-a23c-e890dbd64abc}</UniqueIdentifier>
     </Filter>
@@ -42,9 +38,6 @@
     <ClCompile Include="Streams.cpp">
       <Filter>TestClasses</Filter>
     </ClCompile>
-    <ClCompile Include="PowerUp.cpp">
-      <Filter>Classes</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -64,9 +57,6 @@
     </ClInclude>
     <ClInclude Include="Streams.h">
       <Filter>TestClasses</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUp.h">
-      <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

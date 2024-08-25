@@ -5,13 +5,16 @@ class GameAssets :
     public Actor
 {
 public:
-    GameAssets(const Point2f& position, int delay, type type);
+    GameAssets(const Point2f& position, int delay, type type, powerUpType powerUpType = powerUpType::none);
+    GameAssets(const Point2f& position, int delay, powerUpType powerUpType);
 
     virtual void Draw() const override;
     virtual void Update(float elapsedSec) override;
 
     Circlef GetHitCircle() const;
     int GetDamage() const;
+    powerUpType GetPowerUp() const;
+
     void SetIsKilled(bool killed);
     bool GetIsKilled() const;
 
@@ -23,6 +26,7 @@ public:
 
 private:
     type m_Type;
+    powerUpType m_PowerUpType;
     int m_Delay;
     float m_PassedSeconds;
     int m_HealthModifier;

@@ -17,17 +17,24 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	PrintInstructions();
-	m_Player = new Player(Point2f{ 120, GetViewPort().height / 2 });
-	Actor::SetBoundaries(GetViewPort());
-	InitializeForLoop(AMOUNT_OF_COLLECTABLES, m_Collectables, m_DirStateCollectables, type::collectable);
-	InitializeForLoop(AMOUNT_OF_ENEMIES     , m_Enemies     , m_DirStateEnemies     , type::enemie     );
-	InitializeForLoop(AMOUNT_OF_SWITCHABLES , m_Switchables , m_DirStateSwitchables , type::switchable );
+	Point2f dimensions{ 700, 500 };
+	m_Boundaries = Rectf{ GetViewPort().width / 2 - dimensions.x / 2, GetViewPort().height / 2 - dimensions.y / 2, dimensions.x, dimensions.y };
+	m_Player = new Player(Point2f{ 350, GetViewPort().height / 2 });
+	Actor::SetBoundaries(m_Boundaries);
+	InitializeForLoop(AMOUNT_OF_COLLECTABLES, m_Collectables, m_DirStateCollectables, type::collectable	);
+	InitializeForLoop(AMOUNT_OF_ENEMIES     , m_Enemies     , m_DirStateEnemies     , type::enemie		);
+	InitializeForLoop(AMOUNT_OF_SWITCHABLES , m_Switchables , m_DirStateSwitchables , type::switchable	);
+	InitializeForLoop(AMOUNT_OF_POWERUPS	, m_PowerUps	, m_DirStatePowerUps	, type::powerUp		);
 	m_GameOver = false;
 	m_GameMode = gameMode::playing;
 
 	m_pFont = TTF_OpenFont("DIN-Light.otf", 30);
 	m_pDoubleTexture = new Texture{ "x2", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pSuperSpeedTexture = new Texture{ ">>", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pPauseTexture = new Texture{ "PAUSE", m_pFont, Color4f{1.f,1.f,1.f} };
 	Actor::SetDoubleTexture(m_pDoubleTexture);
+
+	m_Player->SetSuperSpeedTexture(m_pSuperSpeedTexture);
 }
 
 void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::vector<bool>& dir_states, type type)
@@ -35,7 +42,7 @@ void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::v
 	assets.reserve(amount);
 	for (int i{}; i < amount; ++i)
 	{
-		float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+		float y{ rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height)/2 };
 		for (int r{}; r < i; ++r)
 		{
 			if (r != i)
@@ -54,13 +61,23 @@ void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::v
 					case type::switchable:
 						std::cout << "SWITCHABLE ";
 						break;
+					case type::powerUp:
+						std::cout << "POWERUP ";
+						break;
 					}
 					std::cout << "[" << i << "]: y reassignent\n";
 				}
 			}
 		}
 		int delay{ rand() % 35 };
-		assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, type });
+		if (type == type::powerUp)
+		{
+			assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::SuperSpeed });
+		}
+		else
+		{
+			assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, type });
+		}
 		dir_states.push_back(false);
 	}
 }
@@ -70,12 +87,19 @@ void Game::Cleanup( )
 	m_Enemies.clear();
 	m_Collectables.clear();
 	m_Switchables.clear();
+	m_PowerUps.clear();
 
 	delete m_Player;
 	m_Player = nullptr;
 
 	delete m_pDoubleTexture;
 	m_pDoubleTexture = nullptr;
+
+	delete m_pPauseTexture;
+	m_pPauseTexture = nullptr;
+
+	delete m_pSuperSpeedTexture;
+	m_pSuperSpeedTexture = nullptr;
 }
 
 void Game::Reset()
@@ -106,12 +130,12 @@ void Game::ReuseGameAssets(int amount, std::vector<GameAssets>& assets, std::vec
 			Point2f pos{ 0,0 };
 			if (!dir_states[i])
 			{
-				float x{ rand() % (int(GetViewPort().width) - 100) + 50.f };
+				float x{ rand() % (int(m_Boundaries.width) - 100) + (GetViewPort().width - m_Boundaries.width)/2 };
 				pos = Point2f{ x, GetViewPort().height };
 			}
 			else
 			{
-				float y{ rand() % (int(GetViewPort().height) - 100) + 50.f };
+				float y{ rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height)/2 };
 				pos = Point2f{ GetViewPort().width, y };
 			}
 			assets[i] = GameAssets{ pos, delay, type };
@@ -141,6 +165,11 @@ void Game::Update( float elapsedSec )
 		{
 			m_Switchables[i].Update(elapsedSec);
 			m_Player->HitDetection(&m_Switchables[i], type::switchable);
+		}
+		for (int i{}; i < AMOUNT_OF_POWERUPS; ++i)
+		{
+			m_PowerUps[i].Update(elapsedSec);
+			m_Player->HitDetection(&m_PowerUps[i], type::powerUp, m_PowerUps[1].GetPowerUp());
 		}
 		if (m_Player->CheckSpeedZero())
 		{
@@ -187,6 +216,19 @@ void Game::Draw() const
 		{
 			m_Switchables[i].Draw();
 		}
+		for (int i{}; i < AMOUNT_OF_POWERUPS; ++i)
+		{
+			m_PowerUps[i].Draw();
+		}
+
+		utils::SetColor(Color4f{ 1.f,0.f,0.f });
+		utils::DrawRect(m_Boundaries, 4.f);
+
+		if (m_GameMode == gameMode::pause)
+		{
+			Point2f pausePos{ GetViewPort().width / 2 - m_pPauseTexture->GetWidth() / 2, GetViewPort().height / 2 - m_pPauseTexture->GetHeight() / 2 };
+			m_pPauseTexture->Draw(pausePos);
+		}
 	}
 	else if (m_GameMode == gameMode::lost)
 	{
@@ -223,7 +265,7 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 		}
 		else if (m_GameMode == gameMode::pause)
 		{
-			m_GameMode == gameMode::playing;
+			m_GameMode = gameMode::playing;
 			std::cout << "PLAY!\n";
 		}
 		break;

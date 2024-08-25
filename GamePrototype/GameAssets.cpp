@@ -2,10 +2,11 @@
 #include "GameAssets.h"
 #include "utils.h"
 
-GameAssets::GameAssets(const Point2f& position, int delay, type type)
+GameAssets::GameAssets(const Point2f& position, int delay, type type, powerUpType powerUpType)
 	: Actor(position), m_IsActive{ false }, m_HealthModifier{}
 	, m_Delay{ delay }, m_PassedSeconds{ 0 }, m_Type{type}
 	, m_IsKilled{ false }, m_SwitchDirection{ false }
+	, m_PowerUpType{ powerUpType }
 {
 	switch (m_Type)
 	{
@@ -24,10 +25,24 @@ GameAssets::GameAssets(const Point2f& position, int delay, type type)
 		m_EdgeColor = utils::ConvertColor(89, 94, 20);
 		m_HealthModifier = int(rand() % 3 + 2);
 		break;
+	case type::powerUp:
+		m_FillColor = utils::ConvertColor(200, 200, 200);
+		m_EdgeColor = utils::ConvertColor(255, 255, 255);
+		m_HealthModifier = 0;
+		break;
 	}
 	m_Size = 50.f + (10 * m_HealthModifier);
+	if (m_Type == type::powerUp)
+	{
+		m_Size = 40.f;
+	}
 	m_Speed = rand()%41 + 70;
 	m_Health = 1;
+}
+
+GameAssets::GameAssets(const Point2f& position, int delay, powerUpType powerUpType)
+	: GameAssets(position, delay, type::powerUp, powerUpType)
+{
 }
 
 void GameAssets::Draw() const
@@ -39,6 +54,10 @@ void GameAssets::Draw() const
 
 		utils::SetColor(m_EdgeColor);
 		utils::DrawEllipse(m_Position, m_Size / 2.f, m_Size / 2.f, 4);
+		if (m_PowerUpType == powerUpType::DoubleReward || m_IsDouble)
+		{
+			m_pTexture->Draw(m_Position);
+		}
 	}
 
 	Actor::Draw();
@@ -91,6 +110,11 @@ Circlef GameAssets::GetHitCircle() const
 int GameAssets::GetDamage() const
 {
 	return m_HealthModifier;
+}
+
+powerUpType GameAssets::GetPowerUp() const
+{
+	return m_PowerUpType;
 }
 
 void GameAssets::SetIsKilled(bool killed)
