@@ -59,6 +59,7 @@ private:
 	Texture* m_pSmallSuperSpeedTexture;
 
 	Texture* m_pPauseTexture;
+	Texture* m_pTotalScore;
 
 	// FUNCTIONS
 	void Initialize();

@@ -29,7 +29,7 @@ void Game::Initialize( )
 	m_PowerUps.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::SuperSpeed });
 	y = rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height) / 2 ;
 	delay = rand() % 70 ;
-	m_PowerUps.push_back(GameAssets{ Point2f{GetViewPort().width, y}, 1, powerUpType::DoubleReward });
+	m_PowerUps.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::DoubleReward });
 	m_DirSatePowerUps.push_back(false);
 	m_DirSatePowerUps.push_back(false);
 	m_GameOver = false;
@@ -37,15 +37,16 @@ void Game::Initialize( )
 
 	m_pFont = TTF_OpenFont("DIN-Light.otf", 30);
 	m_pSmallFont = TTF_OpenFont("DIN-Light.otf", 14);
-	m_pDoubleTexture = new Texture{ "x2", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pDoubleTexture = new Texture{ "x2", m_pFont, Color4f{1.f,1.f,1.f} };
 	m_pSmallDoubleTexture = new Texture{ "x2", m_pSmallFont, Color4f{0.f, 0.f, 0.f} };
-	m_pSuperSpeedTexture = new Texture{ ">>", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pSuperSpeedTexture = new Texture{ ">>", m_pFont, Color4f{1.f,1.f,1.f} };
 	m_pSmallSuperSpeedTexture = new Texture{ ">>", m_pSmallFont, Color4f{0.f, 0.f, 0.f} };
 	m_pPauseTexture = new Texture{ "PAUSE", m_pFont, Color4f{1.f,1.f,1.f} };
 	Player::SetDoubleTexture(m_pDoubleTexture);
 	Player::SetSuperSpeedTexture(m_pSuperSpeedTexture);
 	GameAssets::SetDoubleTexture(m_pSmallDoubleTexture);
 	GameAssets::SetSuperSpeedTexture(m_pSmallSuperSpeedTexture);
+	m_pTotalScore = nullptr;
 }
 
 void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::vector<bool>& dir_states, type type)
@@ -119,6 +120,12 @@ void Game::Cleanup( )
 
 	delete m_pSmallSuperSpeedTexture;
 	m_pSmallSuperSpeedTexture = nullptr;
+
+	if (m_pTotalScore != nullptr)
+	{
+		delete m_pTotalScore;
+		m_pTotalScore = nullptr;
+	}
 }
 
 void Game::Reset()
@@ -232,6 +239,8 @@ void Game::Update( float elapsedSec )
 		if (m_Player->CheckSpeedZero())
 		{
 			m_GameMode = gameMode::won;
+			std::string endText{ "Your Score is: " + std::to_string(m_Player->GetTotalScore()) };
+			m_pTotalScore = new Texture{ endText, m_pFont, Color4f{1.f, 1.f, 1.f} };
 		}
 
 		Point2f offset{ (GetViewPort().width - DEFAULT_DIMENSIONS.x) / 6, (GetViewPort().height - DEFAULT_DIMENSIONS.y) / 6 };
@@ -249,7 +258,11 @@ void Game::Update( float elapsedSec )
 		if (m_GameOver)
 		{
 			m_GameMode = gameMode::lost;
+			std::string endText{ "Your Score is: " + std::to_string(m_Player->GetTotalScore()) };
+			m_pTotalScore = new Texture{ endText, m_pFont, Color4f{1.f, 1.f, 1.f} };
 		}
+
+		m_Player->UpdateTimers(elapsedSec);
 	}
 	// Check keyboard state
 	//const Uint8 *pStates = SDL_GetKeyboardState( nullptr );
@@ -299,15 +312,21 @@ void Game::Draw() const
 			Point2f pausePos{ GetViewPort().width / 2 - m_pPauseTexture->GetWidth() / 2, GetViewPort().height / 2 - m_pPauseTexture->GetHeight() / 2 };
 			m_pPauseTexture->Draw(pausePos);
 		}
+
+		m_Player->DrawTimers();
 	}
 	else if (m_GameMode == gameMode::lost)
 	{
 		ClearBackground(Color4f{ 0.6f, 0.1f, 0.1f, 1.f });
+		m_pTotalScore->Draw(Point2f{ 300, 400 });
 	}
 	else if (m_GameMode == gameMode::won)
 	{
 		ClearBackground(Color4f{ 0.1f, 0.6f, 0.1f, 1.f });
+		m_pTotalScore->Draw(Point2f{ 300, 400 });
 	}
+
+	
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )

@@ -23,6 +23,9 @@ Player::Player(const Point2f& pos)
 	m_Speed = 430 - m_BaseSpeed * m_Health;
 	m_HitRect = Rectf{ m_Position.x - m_Size / 2, m_Position.y - m_Size / 2 , float(m_Size), float(m_Size) };
 	m_IncreaseBoundary = 0;
+	m_DoubleTimer = Rectf{ 100, 30, 0, 30 };
+	m_SpeedTimer  = Rectf{ 100, 70, 0, 30 };
+	m_TotalScore = 0;
 }
 
 void Player::Draw() const
@@ -46,6 +49,20 @@ void Player::Draw() const
 			m_pDoubleTexture->Draw(Point2f{ m_Position.x - m_Size / 2, m_Position.y - m_Size/3});
 		}
 	}
+
+}
+
+void Player::DrawTimers() const
+{
+	utils::SetColor(Color4f{ 0.6f, 0.6f, 0.6f });
+	utils::FillRect(m_DoubleTimer);
+	utils::FillRect(m_SpeedTimer);
+
+	utils::SetColor(Color4f{ 0.8f, 0.8f, 0.8f });
+	utils::DrawRect(Rectf{ 100, 30, 200, 30 });
+	utils::DrawRect(Rectf{ 100, 70, 200, 30 });
+	m_pDoubleTexture->Draw(Point2f{ 20, 30 });
+	m_pSuperSpeedTexture->Draw(Point2f{ 20, 70 });
 
 }
 
@@ -115,6 +132,20 @@ void Player::Update(float elapsedSec)
 	}
 }
 
+void Player::UpdateTimers(float elapsedSec)
+{
+	if (m_DoubleReward)
+	{
+		float width{ 200 * ((DOUBLEREWARD_MAXTIME - m_DoubleRewardCounter)/ DOUBLEREWARD_MAXTIME) };
+		m_DoubleTimer.width = width;
+	}
+	if (m_SuperSpeed)
+	{
+		float width{ 200 * ((SUPERSPEED_MAXTIME - m_SuperSpeedCounter) / SUPERSPEED_MAXTIME) };
+		m_SpeedTimer.width = width;
+	}
+}
+
 void Player::ProcessKeyDownEvent(const SDL_KeyboardEvent& e)
 {
 	//switch (e.keysym.sym)
@@ -160,8 +191,10 @@ void Player::HitDetection(GameAssets* asset, type type, powerUpType powerUpType)
 			case type::collectable:
 				if (m_DoubleReward)
 				{
+					m_TotalScore += asset->GetDamage();
 					m_Health += asset->GetDamage();
 				}
+				m_TotalScore += asset->GetDamage();
 				m_Health += asset->GetDamage();
 				break;
 			case type::powerUp:
@@ -184,6 +217,7 @@ void Player::HitDetection(GameAssets* asset, type type, powerUpType powerUpType)
 				int random{ rand() % 2 };
 				if (random == 0)
 				{
+					m_TotalScore += asset->GetDamage();
 					m_Health += asset->GetDamage();
 				}
 				else
@@ -238,7 +272,7 @@ bool Player::GetDoubleReward()
 
 void Player::PrintHealth()
 {
-	std::cout << "[HEALTH]: " << m_Health << "\t [SPEED]: " << m_Speed << std::endl;
+	std::cout << "[HEALTH]: " << m_Health << "\t [SPEED]: " << m_Speed << "\t [TOTAL SCORE]: " << m_TotalScore << std::endl;
 }
 
 void Player::SetDoubleTexture(Texture* const texture_pointer)
@@ -249,4 +283,9 @@ void Player::SetDoubleTexture(Texture* const texture_pointer)
 void Player::SetSuperSpeedTexture(Texture* const texture_pointer)
 {
 	m_pSuperSpeedTexture = texture_pointer;
+}
+
+int Player::GetTotalScore() const
+{
+	return m_TotalScore;
 }

@@ -9,7 +9,9 @@ class Player :
 public:
     Player(const Point2f& pos);
     virtual void Draw() const override;
+    void DrawTimers() const;
     virtual void Update(float elapsedSec) override;
+    void UpdateTimers(float elapsedSec);
 
     void ProcessKeyDownEvent(const SDL_KeyboardEvent& e);
     void ProcessKeyUpEvent(const SDL_KeyboardEvent& e);
@@ -23,6 +25,8 @@ public:
 
     static void SetDoubleTexture(Texture* const texture_pointer);
     static void SetSuperSpeedTexture(Texture* const texture_pointer);
+
+    int GetTotalScore() const;
 
 private:
     static Texture* m_pDoubleTexture;
@@ -39,5 +43,10 @@ private:
     const float DOUBLEREWARD_MAXTIME{ 5 };
     int m_IncreaseBoundary; // 0 no increase, 1 little increase, 2 more etc
     void PrintHealth();
+
+    Rectf m_DoubleTimer;
+    Rectf m_SpeedTimer;
+
+    int m_TotalScore;
 };
 
