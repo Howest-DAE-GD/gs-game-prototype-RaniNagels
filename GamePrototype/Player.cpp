@@ -4,6 +4,9 @@
 #include "iostream"
 #include "GameAssets.h"
 
+Texture* Player::m_pDoubleTexture{ nullptr };
+Texture* Player::m_pSuperSpeedTexture{ nullptr };
+
 Player::Player(const Point2f& pos)
 	: Actor(pos)
 {
@@ -11,13 +14,14 @@ Player::Player(const Point2f& pos)
 	m_EdgeColor = utils::ConvertColor(17, 87, 128);
 	m_SuperSpeed = false;
 	m_SuperSpeedCounter = 0;
+	m_DoubleReward = false;
+	m_DoubleRewardCounter = 0;
 	m_Health = 5;
 	m_BaseSize = 12;
 	m_BaseSpeed = 20;
 	m_Size = 40.f + m_BaseSize * m_Health;
 	m_Speed = 430 - m_BaseSpeed * m_Health;
 	m_HitRect = Rectf{ m_Position.x - m_Size / 2, m_Position.y - m_Size / 2 , float(m_Size), float(m_Size) };
-	m_pSuperSpeedTexture = nullptr;
 	m_IncreaseBoundary = 0;
 }
 
@@ -35,11 +39,13 @@ void Player::Draw() const
 		
 		if (m_SuperSpeed && m_pSuperSpeedTexture != nullptr)
 		{
-			m_pSuperSpeedTexture->Draw(Point2f{m_Position.x - m_Size/2, m_Position.y});
+			m_pSuperSpeedTexture->Draw(Point2f{m_Position.x - m_Size/2, m_Position.y + m_Size/6});
+		}
+		if (m_DoubleReward)
+		{
+			m_pDoubleTexture->Draw(Point2f{ m_Position.x - m_Size / 2, m_Position.y - m_Size/3});
 		}
 	}
-
-	Actor::Draw();
 
 }
 
@@ -60,6 +66,20 @@ void Player::Update(float elapsedSec)
 			{
 				speed += 250;
 				m_SuperSpeedCounter += elapsedSec;
+			}
+		}
+		if (m_DoubleReward)
+		{
+			if (m_DoubleRewardCounter >= DOUBLEREWARD_MAXTIME)
+			{
+				m_DoubleReward = false;
+				m_DoubleRewardCounter = 0;
+				std::cout << "DOUBLE REWARD DEACTIVATED!!\n";
+			}
+			else
+			{
+				speed += 250;
+				m_DoubleRewardCounter += elapsedSec;
 			}
 		}
 		const Uint8* pStates = SDL_GetKeyboardState(nullptr);
@@ -138,6 +158,10 @@ void Player::HitDetection(GameAssets* asset, type type, powerUpType powerUpType)
 				m_Health -= asset->GetDamage();
 				break;
 			case type::collectable:
+				if (m_DoubleReward)
+				{
+					m_Health += asset->GetDamage();
+				}
 				m_Health += asset->GetDamage();
 				break;
 			case type::powerUp:
@@ -149,6 +173,10 @@ void Player::HitDetection(GameAssets* asset, type type, powerUpType powerUpType)
 					break;
 				case powerUpType::BiggerField:
 					++m_IncreaseBoundary;
+					break;
+				case powerUpType::DoubleReward:
+					m_DoubleReward = true;
+					m_DoubleRewardCounter = 0;
 					break;
 				}
 				break;
@@ -191,12 +219,34 @@ bool Player::CheckSpeedZero()
 	return false;
 }
 
-void Player::SetSuperSpeedTexture(Texture* texture)
+int Player::GetIncreaseBoundaryAmount()
 {
-	m_pSuperSpeedTexture = texture;
+	if (m_IncreaseBoundary < 6)
+	{
+		return m_IncreaseBoundary;
+	}
+	else
+	{
+		return 6;
+	}
+}
+
+bool Player::GetDoubleReward()
+{
+	return m_DoubleReward;
 }
 
 void Player::PrintHealth()
 {
 	std::cout << "[HEALTH]: " << m_Health << "\t [SPEED]: " << m_Speed << std::endl;
+}
+
+void Player::SetDoubleTexture(Texture* const texture_pointer)
+{
+	m_pDoubleTexture = texture_pointer;
+}
+
+void Player::SetSuperSpeedTexture(Texture* const texture_pointer)
+{
+	m_pSuperSpeedTexture = texture_pointer;
 }

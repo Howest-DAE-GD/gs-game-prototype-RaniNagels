@@ -9,14 +9,12 @@ public:
 	virtual void Update(float elapsedSec) = 0;
 
 	static void SetBoundaries(const Rectf& boundaries);
-	static void SetDoubleTexture(Texture* const texture_pointer);
 
 	void SetDoubleState(bool is_double);
 
 protected:
 	static Rectf m_Boundaries;
-	static Texture* m_pTexture;
-
+	
 	float m_Size;
 	int m_Speed;
 	int m_Health;

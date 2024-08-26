@@ -35,10 +35,14 @@ private:
 	const int AMOUNT_OF_SWITCHABLES{ 10 };
 	std::vector<GameAssets> m_Switchables;
 	std::vector<bool> m_DirStateSwitchables;
-	const int AMOUNT_OF_POWERUPS{ 5 };
+	const int AMOUNT_OF_BIGGERFIELD_POWERUPS{ 5 };
+	std::vector<GameAssets> m_BiggerField_PowerUps;
+	std::vector<bool> m_DirStateBiggerFieldPowerUps;
+	const int AMOUNT_OF_POWERUPS{4};
 	std::vector<GameAssets> m_PowerUps;
-	std::vector<bool> m_DirStatePowerUps;
+	std::vector<bool> m_DirSatePowerUps;
 
+	const Point2f DEFAULT_DIMENSIONS{ 700,500 };
 	Rectf m_Boundaries;
 
 	Player* m_Player;
@@ -48,8 +52,11 @@ private:
 	
 
 	TTF_Font* m_pFont;
+	TTF_Font* m_pSmallFont;
 	Texture* m_pDoubleTexture;
+	Texture* m_pSmallDoubleTexture;
 	Texture* m_pSuperSpeedTexture;
+	Texture* m_pSmallSuperSpeedTexture;
 
 	Texture* m_pPauseTexture;
 

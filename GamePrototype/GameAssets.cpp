@@ -2,6 +2,9 @@
 #include "GameAssets.h"
 #include "utils.h"
 
+Texture* GameAssets::m_pDoubleTexture{ nullptr };
+Texture* GameAssets::m_pSuperSpeedTexture{ nullptr };
+
 GameAssets::GameAssets(const Point2f& position, int delay, type type, powerUpType powerUpType)
 	: Actor(position), m_IsActive{ false }, m_HealthModifier{}
 	, m_Delay{ delay }, m_PassedSeconds{ 0 }, m_Type{type}
@@ -26,8 +29,16 @@ GameAssets::GameAssets(const Point2f& position, int delay, type type, powerUpTyp
 		m_HealthModifier = int(rand() % 3 + 2);
 		break;
 	case type::powerUp:
-		m_FillColor = utils::ConvertColor(200, 200, 200);
-		m_EdgeColor = utils::ConvertColor(255, 255, 255);
+		if (powerUpType == powerUpType::BiggerField)
+		{
+			m_FillColor = Color4f{ 0.f,0.f,0.f,0.f };
+			m_EdgeColor = utils::ConvertColor(255, 0, 0);
+		}
+		else
+		{
+			m_FillColor = utils::ConvertColor(200, 200, 200);
+			m_EdgeColor = utils::ConvertColor(255, 255, 255);
+		}
 		m_HealthModifier = 0;
 		break;
 	}
@@ -56,11 +67,19 @@ void GameAssets::Draw() const
 		utils::DrawEllipse(m_Position, m_Size / 2.f, m_Size / 2.f, 4);
 		if (m_PowerUpType == powerUpType::DoubleReward || m_IsDouble)
 		{
-			m_pTexture->Draw(m_Position);
+			if (m_pDoubleTexture->IsCreationOk())
+			{
+				m_pDoubleTexture->Draw(Point2f{m_Position.x-m_Size/3, m_Position.y-m_Size/4});
+			}
+		}
+		else if (m_PowerUpType == powerUpType::SuperSpeed)
+		{
+			if (m_pSuperSpeedTexture->IsCreationOk())
+			{
+				m_pSuperSpeedTexture->Draw(Point2f{ m_Position.x - m_Size / 3, m_Position.y - m_Size / 4 });
+			}
 		}
 	}
-
-	Actor::Draw();
 }
 
 void GameAssets::Update(float elapsedSec)
@@ -117,6 +136,11 @@ powerUpType GameAssets::GetPowerUp() const
 	return m_PowerUpType;
 }
 
+void GameAssets::SetPowerUpType(const powerUpType& power_up_type)
+{
+	m_PowerUpType = power_up_type;
+}
+
 void GameAssets::SetIsKilled(bool killed)
 {
 	m_IsKilled = killed;
@@ -145,4 +169,14 @@ void GameAssets::SetSwitchDirection(bool isSwitch)
 bool GameAssets::GetSwitchDirection()
 {
 	return m_SwitchDirection;
+}
+
+void GameAssets::SetDoubleTexture(Texture* const texture_pointer)
+{
+	m_pDoubleTexture = texture_pointer;
+}
+
+void GameAssets::SetSuperSpeedTexture(Texture* const texture_pointer)
+{
+	m_pSuperSpeedTexture = texture_pointer;
 }

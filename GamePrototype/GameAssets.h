@@ -14,6 +14,7 @@ public:
     Circlef GetHitCircle() const;
     int GetDamage() const;
     powerUpType GetPowerUp() const;
+    void SetPowerUpType(const powerUpType& power_up_type);
 
     void SetIsKilled(bool killed);
     bool GetIsKilled() const;
@@ -24,7 +25,13 @@ public:
     void SetSwitchDirection(bool isSwitch);
     bool GetSwitchDirection();
 
+    static void SetDoubleTexture(Texture* const texture_pointer);
+    static void SetSuperSpeedTexture(Texture* const texture_pointer);
+
 private:
+    static Texture* m_pDoubleTexture;
+    static Texture* m_pSuperSpeedTexture;
+
     type m_Type;
     powerUpType m_PowerUpType;
     int m_Delay;

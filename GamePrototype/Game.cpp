@@ -17,24 +17,35 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	PrintInstructions();
-	Point2f dimensions{ 700, 500 };
-	m_Boundaries = Rectf{ GetViewPort().width / 2 - dimensions.x / 2, GetViewPort().height / 2 - dimensions.y / 2, dimensions.x, dimensions.y };
+	m_Boundaries = Rectf{ GetViewPort().width / 2 - DEFAULT_DIMENSIONS.x / 2, GetViewPort().height / 2 - DEFAULT_DIMENSIONS.y / 2, DEFAULT_DIMENSIONS.x, DEFAULT_DIMENSIONS.y };
 	m_Player = new Player(Point2f{ 350, GetViewPort().height / 2 });
 	Actor::SetBoundaries(m_Boundaries);
 	InitializeForLoop(AMOUNT_OF_COLLECTABLES, m_Collectables, m_DirStateCollectables, type::collectable	);
 	InitializeForLoop(AMOUNT_OF_ENEMIES     , m_Enemies     , m_DirStateEnemies     , type::enemie		);
 	InitializeForLoop(AMOUNT_OF_SWITCHABLES , m_Switchables , m_DirStateSwitchables , type::switchable	);
-	InitializeForLoop(AMOUNT_OF_POWERUPS	, m_PowerUps	, m_DirStatePowerUps	, type::powerUp		);
+	InitializeForLoop(AMOUNT_OF_BIGGERFIELD_POWERUPS	, m_BiggerField_PowerUps	, m_DirStateBiggerFieldPowerUps	, type::powerUp		);
+	float y{ rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height) / 2 };
+	int delay{ rand() % 70 };
+	m_PowerUps.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::SuperSpeed });
+	y = rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height) / 2 ;
+	delay = rand() % 70 ;
+	m_PowerUps.push_back(GameAssets{ Point2f{GetViewPort().width, y}, 1, powerUpType::DoubleReward });
+	m_DirSatePowerUps.push_back(false);
+	m_DirSatePowerUps.push_back(false);
 	m_GameOver = false;
 	m_GameMode = gameMode::playing;
 
 	m_pFont = TTF_OpenFont("DIN-Light.otf", 30);
+	m_pSmallFont = TTF_OpenFont("DIN-Light.otf", 14);
 	m_pDoubleTexture = new Texture{ "x2", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pSmallDoubleTexture = new Texture{ "x2", m_pSmallFont, Color4f{0.f, 0.f, 0.f} };
 	m_pSuperSpeedTexture = new Texture{ ">>", m_pFont, Color4f{0.f, 0.f, 0.f} };
+	m_pSmallSuperSpeedTexture = new Texture{ ">>", m_pSmallFont, Color4f{0.f, 0.f, 0.f} };
 	m_pPauseTexture = new Texture{ "PAUSE", m_pFont, Color4f{1.f,1.f,1.f} };
-	Actor::SetDoubleTexture(m_pDoubleTexture);
-
-	m_Player->SetSuperSpeedTexture(m_pSuperSpeedTexture);
+	Player::SetDoubleTexture(m_pDoubleTexture);
+	Player::SetSuperSpeedTexture(m_pSuperSpeedTexture);
+	GameAssets::SetDoubleTexture(m_pSmallDoubleTexture);
+	GameAssets::SetSuperSpeedTexture(m_pSmallSuperSpeedTexture);
 }
 
 void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::vector<bool>& dir_states, type type)
@@ -49,7 +60,7 @@ void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::v
 			{
 				while (assets[r].GetHitCircle().center.y <= y + 5 && assets[r].GetHitCircle().center.y >= y - 5)
 				{
-					y =  rand() % (int(GetViewPort().height) - 100) + 50.f ;
+					y =  rand() % (int(GetViewPort().height) - 100) + (GetViewPort().height - m_Boundaries.height) / 2;
 					switch (type)
 					{
 					case type::enemie:
@@ -69,13 +80,14 @@ void Game::InitializeForLoop(int amount, std::vector<GameAssets>& assets, std::v
 				}
 			}
 		}
-		int delay{ rand() % 35 };
 		if (type == type::powerUp)
 		{
-			assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::SuperSpeed });
+			int delay{ rand() % 150 };
+			assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, powerUpType::BiggerField });
 		}
 		else
 		{
+			int delay{ rand() % 35 };
 			assets.push_back(GameAssets{ Point2f{GetViewPort().width, y}, delay, type });
 		}
 		dir_states.push_back(false);
@@ -87,6 +99,7 @@ void Game::Cleanup( )
 	m_Enemies.clear();
 	m_Collectables.clear();
 	m_Switchables.clear();
+	m_BiggerField_PowerUps.clear();
 	m_PowerUps.clear();
 
 	delete m_Player;
@@ -98,8 +111,14 @@ void Game::Cleanup( )
 	delete m_pPauseTexture;
 	m_pPauseTexture = nullptr;
 
+	delete m_pSmallDoubleTexture;
+	m_pSmallDoubleTexture = nullptr;
+
 	delete m_pSuperSpeedTexture;
 	m_pSuperSpeedTexture = nullptr;
+
+	delete m_pSmallSuperSpeedTexture;
+	m_pSmallSuperSpeedTexture = nullptr;
 }
 
 void Game::Reset()
@@ -131,14 +150,40 @@ void Game::ReuseGameAssets(int amount, std::vector<GameAssets>& assets, std::vec
 			if (!dir_states[i])
 			{
 				float x{ rand() % (int(m_Boundaries.width) - 100) + (GetViewPort().width - m_Boundaries.width)/2 };
-				pos = Point2f{ x, GetViewPort().height };
+				pos = Point2f{ x, GetViewPort().height};
 			}
 			else
 			{
 				float y{ rand() % (int(m_Boundaries.height) - 100) + (GetViewPort().height - m_Boundaries.height)/2 };
-				pos = Point2f{ GetViewPort().width, y };
+				pos = Point2f{ GetViewPort().width, y};
 			}
-			assets[i] = GameAssets{ pos, delay, type };
+
+			if (type == type::powerUp)
+			{
+				switch (assets[i].GetPowerUp())
+				{
+				case powerUpType::BiggerField:
+					//assets[i] = GameAssets{ pos, delay, powerUpType::BiggerField };
+					break;
+				case powerUpType::SuperSpeed:
+					assets[i] = GameAssets{ pos, delay, powerUpType::SuperSpeed };
+					break;
+				case powerUpType::catchNet:
+					assets[i] = GameAssets{ pos, delay, powerUpType::catchNet };
+					break;
+				case powerUpType::DoubleReward:
+					assets[i] = GameAssets{ pos, delay, powerUpType::DoubleReward };
+					break;
+				case powerUpType::DoubleRandom:
+					assets[i] = GameAssets{ pos, delay, powerUpType::DoubleRandom };
+					break;
+				}
+				
+			}
+			else
+			{
+				assets[i] = GameAssets{ pos, delay, type };
+			}
 			assets[i].SetSwitchDirection(!dir_states[i]);
 			dir_states[i] = !dir_states[i];
 			assets[i].SetSpeed(assets[i].GetSpeed() + speedIncrease);
@@ -158,6 +203,14 @@ void Game::Update( float elapsedSec )
 		}
 		for (int i{}; i < AMOUNT_OF_COLLECTABLES; ++i)
 		{
+			if (m_Player->GetDoubleReward())
+			{
+				m_Collectables[i].SetPowerUpType(powerUpType::DoubleReward);
+			}
+			else
+			{
+				m_Collectables[i].SetPowerUpType(powerUpType::none);
+			}
 			m_Collectables[i].Update(elapsedSec);
 			m_Player->HitDetection(&m_Collectables[i], type::collectable);
 		}
@@ -166,18 +219,31 @@ void Game::Update( float elapsedSec )
 			m_Switchables[i].Update(elapsedSec);
 			m_Player->HitDetection(&m_Switchables[i], type::switchable);
 		}
-		for (int i{}; i < AMOUNT_OF_POWERUPS; ++i)
+		for (int i{}; i < AMOUNT_OF_BIGGERFIELD_POWERUPS; ++i)
+		{
+			m_BiggerField_PowerUps[i].Update(elapsedSec);
+			m_Player->HitDetection(&m_BiggerField_PowerUps[i], type::powerUp, m_BiggerField_PowerUps[1].GetPowerUp());
+		}
+		for (int i{}; i < m_PowerUps.size(); ++i)
 		{
 			m_PowerUps[i].Update(elapsedSec);
-			m_Player->HitDetection(&m_PowerUps[i], type::powerUp, m_PowerUps[1].GetPowerUp());
+			m_Player->HitDetection(&m_PowerUps[i], type::powerUp, m_PowerUps[i].GetPowerUp());
 		}
 		if (m_Player->CheckSpeedZero())
 		{
 			m_GameMode = gameMode::won;
 		}
+
+		Point2f offset{ (GetViewPort().width - DEFAULT_DIMENSIONS.x) / 6, (GetViewPort().height - DEFAULT_DIMENSIONS.y) / 6 };
+		Point2f dimensions{ DEFAULT_DIMENSIONS.x+(offset.x*m_Player->GetIncreaseBoundaryAmount()), DEFAULT_DIMENSIONS.y+ (offset.y*m_Player->GetIncreaseBoundaryAmount())};
+		m_Boundaries = Rectf{ GetViewPort().width / 2 - dimensions.x / 2, GetViewPort().height / 2 - dimensions.y / 2, dimensions.x, dimensions.y };
+		Actor::SetBoundaries(m_Boundaries);
+
 		ReuseGameAssets(AMOUNT_OF_ENEMIES, m_Enemies, m_DirStateEnemies, type::enemie);
 		ReuseGameAssets(AMOUNT_OF_COLLECTABLES, m_Collectables, m_DirStateCollectables, type::collectable);
 		ReuseGameAssets(AMOUNT_OF_SWITCHABLES, m_Switchables, m_DirStateSwitchables, type::switchable);
+		ReuseGameAssets(AMOUNT_OF_BIGGERFIELD_POWERUPS, m_BiggerField_PowerUps, m_DirStateBiggerFieldPowerUps, type::powerUp);
+		ReuseGameAssets(m_PowerUps.size(), m_PowerUps, m_DirSatePowerUps, type::powerUp);
 
 		m_GameOver = m_Player->GameOver();
 		if (m_GameOver)
@@ -216,7 +282,11 @@ void Game::Draw() const
 		{
 			m_Switchables[i].Draw();
 		}
-		for (int i{}; i < AMOUNT_OF_POWERUPS; ++i)
+		for (int i{}; i < AMOUNT_OF_BIGGERFIELD_POWERUPS; ++i)
+		{
+			m_BiggerField_PowerUps[i].Draw();
+		}
+		for (int i{}; i < m_PowerUps.size(); ++i)
 		{
 			m_PowerUps[i].Draw();
 		}

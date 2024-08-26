@@ -18,16 +18,25 @@ public:
     bool GameOver();
     bool CheckSpeedZero();
 
-    void SetSuperSpeedTexture(Texture* texture);
+    int GetIncreaseBoundaryAmount();
+    bool GetDoubleReward();
+
+    static void SetDoubleTexture(Texture* const texture_pointer);
+    static void SetSuperSpeedTexture(Texture* const texture_pointer);
 
 private:
+    static Texture* m_pDoubleTexture;
+    static Texture* m_pSuperSpeedTexture;
+
     Rectf m_HitRect;
     int m_BaseSize;
     int m_BaseSpeed;
     bool m_SuperSpeed;
+    bool m_DoubleReward;
     float m_SuperSpeedCounter;
+    float m_DoubleRewardCounter;
     const float SUPERSPEED_MAXTIME{7};
-    Texture* m_pSuperSpeedTexture;
+    const float DOUBLEREWARD_MAXTIME{ 5 };
     int m_IncreaseBoundary; // 0 no increase, 1 little increase, 2 more etc
     void PrintHealth();
 };
